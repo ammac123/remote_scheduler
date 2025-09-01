@@ -1,0 +1,13 @@
+{# templates/_components/counter.html #}
+{% macro countdown_widget(target_iso, title=None, extra_classes='') -%}
+<div class="countdown-widget{{ extra_classes }}" data-target="{{ target_iso }}">
+<span class="countdown font-mono text-2xl">
+  <span data-part="hours" style="--value:0" aria-live="polite" aria-label="0"></span>
+  h
+  <span data-part="minutes" style="--value:0" aria-live="polite" aria-label="0"></span>
+  m
+  <span data-part="seconds" style="--value:0" aria-live="polite" aria-label="0"></span>
+  s
+</span>
+</div>
+{%- endmacro %}
