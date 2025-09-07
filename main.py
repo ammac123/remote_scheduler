@@ -6,6 +6,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from database import get_job
+from sqlite3 import Connection, Row
+from models import Job, Jobs
 
 ENV = os.environ['ENVIRONMENT'] if 'ENVIRONMENT' in os.environ else None
 match str(ENV).lower():
@@ -16,8 +19,11 @@ match str(ENV).lower():
 
 # env vars set
 
-
 app = FastAPI(debug=_DEBUG)
+connection = Connection('scheduler.db')
+connection.row_factory = Row
+
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -28,17 +34,21 @@ def to_iso_z(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+
 @app.get("/", response_class=HTMLResponse)
-def read_root(request: Request):
-    events = [
-        {
-            "target_iso": to_iso_z(datetime(2025,9,2,12,00,34, tzinfo=ZoneInfo("Australia/Sydney")))
-        },
-        {
-            "target_iso": to_iso_z(datetime(2025,12,11,12,00,34, tzinfo=ZoneInfo("Australia/Sydney")))
-        }
-    ]
-    return templates.TemplateResponse("index.html", {"request": request, "events": events})
+async def read_root(request: Request):
+
+    context = get_job(connection)
+    print(context)
+    # events = [
+    #     {
+    #         "target_iso": to_iso_z(datetime(2025,9,2,12,00,34, tzinfo=ZoneInfo("Australia/Sydney")))
+    #     },
+    #     {
+    #         "target_iso": to_iso_z(datetime(2025,12,11,12,00,34, tzinfo=ZoneInfo("Australia/Sydney")))
+    #     }
+    # ]
+    return templates.TemplateResponse(request, "index.html", context=context.model_dump())
 
 # Dashboard
 @app.get("/dashboard", response_class=HTMLResponse)

@@ -1,15 +1,14 @@
 
 {% extends "base.html" %}
 {% from "_components/counter.html" import countdown_widget with context%}
+{% from "_components/dashboard_table.html" import dashboard_table with context%}
 
 {% block content %}
 <h1 class="text-3xl font-bold text-center text-blue-600 dark:text-neutral-100">Welcome to the Scheduler App</h1>
 <p class="mt-4 text-center">FastAPI + HTMX + TailwindCSS starter</p>
 
 <div>
-    {% for ev in events %}
-        {{ countdown_widget(ev.target_iso)}}
-    {% endfor %}
+    {{ dashboard_table(jobs_list) }}
 </div>
 
 
